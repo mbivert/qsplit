@@ -1,0 +1,1 @@
+www.zhongmu.eu␜127.0.0.1␜-␜-␜[13/Mar/2022:03:49:44 +0100]␜"GET /index.php?s=/Index/\think\app/invokefunction&function=call_user_func_array&vars[0]=md5&vars[1][]=HelloThinkPHP21 HTTP/1.1"␜301␜0␜""␜"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"␜45.146.165.37␜-

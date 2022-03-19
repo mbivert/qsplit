@@ -1,0 +1,124 @@
+.Dd $Mdocdate$
+.Dt qsplit 1
+.Os qsplit 1.0
+.Sh NAME
+.Nm qsplit
+.Nd quote splitting
+.Sh SYNOPSIS
+.Nm
+.Bk -words
+.Op Fl h
+.Ek
+.Nm
+.Bk -words
+.Op Fl kns
+.Op Fl i Ar ifs
+.Op Fl o Ar ofs
+.Op fl q Ar quotes
+.Op Ar
+.Ek
+.Sh DESCRIPTION
+.Nm
+is a (single-byte) quote-aware, line splitting tool, that can for
+instance be used as an
+.Xr awk 1
+front-end, thus providing
+.Xr awk 1
+with the ability to read log files containing quoted fields effortlessly.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl h
+Displays a short help message.
+.It Fl k
+Preserves quotes in quoted fields, the default being to
+strip fields from them.
+.It Fl n
+Preserves indentation, by storing it alongside the first
+field of each line. The default is to consider an empty field
+in first position, and to consider the indentation as a field
+separator.
+.It Fl s
+Enable strict mode: will
+.Xr exit 3
+as soon as an
+.Ar ofs
+is detected on the input file; otherwise, a warning
+will be issued on
+.Xr stderr 3 ,
+but processing will continue.
+.It Fl i Ar ifs
+Set the input field separator, as a POSIX.1
+.Xr regex 3
+(see also
+.Xr regex 7 ) .
+.It Fl o Ar ofs
+Set the output field separator (string), currently defaulting to
+0xE2 0x90 0x9C ("Symbol For File Separator", a
+.Xr unicode 7
+character),
+which should be unusual enough to fit this purpose.
+.It Fl q Ar quotes
+Register a set of pair of single byte opening/closing quotes,
+such as each opening quote is immediately followed by the
+corresponding closing quotes.
+.It Ar
+Files to process; default to
+.Xr stdin 3 .
+.El
+.Sh EXAMPLES
+Pre-parse various fields from an OpenBSD
+.Xr httpd 8
+logs (note that this will break on user-agent based quote
+injection):
+.Bd -literal -offset indent
+qsplit -q '[]""' -o ' // ' /var/www/logs/access.log
+.Ed
+Generates:
+.Bd -literal -offset indent
+http // 127.0.0.1 // - // - // 18/Jan/2021:08:23:38 +0100 // GET /w00tw00t.at.blackhats.romanian.anti-sec:) HTTP/1.1 // 404 // 0 //  // ZmEu // 209.141.58.184 // -
+.Ed
+From:
+.Bd -literal -offset indent
+http 127.0.0.1 - - [18/Jan/2021:08:23:38 +0100] "GET /w00tw00t.at.blackhats.romanian.anti-sec:) HTTP/1.1" 404 0 "" "ZmEu" 209.141.58.184 -
+.Ed
+The little qcol script can be used to perform table-based
+indentation, similar to
+.Xr column 1 ;
+the two following are sensibly equivalent for instance:
+.Bd -literal -offset indent
+$ sed 3q /etc/passwd | column -s : -t
+root    x  0  0  root    /root  /bin/bash
+bin     x  1  1  bin     /bin   /usr/bin/nologin
+daemon  x  2  2  daemon  /      /usr/bin/nologin
+$ sed 3q /etc/passwd | qcol -x '  ' -i :
+root    x  0  0  root    /root  /bin/bash
+bin     x  1  1  bin     /bin   /usr/bin/nologin
+daemon  x  2  2  daemon  /      /usr/bin/nologin
+.Ed
+Through quotes handling, qcol can perform some kind
+of tabular indentation beyond
+.Xr column 1 's
+abilities:
+.Bd -literal -offset indent
+   $ cat << EOF | qcol -n -k -m 5
+        static char  *ifs    = "[ \\t,;:]\\+"; // input field separator regex(3)
+        static regex_t ifsre;
+        static char    *quotes = "\\"\\"''[]()";  // default quotes
+        static int    kq    = 0;  // keep quotes in output
+        static int   ki    = 0;  // keep line indentation
+        static uint   maxf    = 0;  // maximum number of field if > 0
+        static int   strict  = 0;       // exits if OFS is found on input
+    EOF
+        static char    *ifs    = "[ \\t,;:]\\+"; // input field separator regex(3)
+        static regex_t ifsre;
+        static char    *quotes = "\\"\\"''[]()";  // default quotes
+        static int     kq      = 0;             // keep quotes in output
+        static int     ki      = 0;             // keep line indentation
+        static uint    maxf    = 0;             // maximum number of field if > 0
+        static int     strict  = 0;             // exits if OFS is found on input
+.Ed
+.Sh SEE ALSO
+.Xr awk 1 ,
+.Xr column 1 ,
+.Xr regex 3 ,
+.Xr regex 7 .

@@ -1,0 +1,5 @@
+static␜char␜*ifs␜=␜"[ \t,;:]\\+";␜/* input field separator regex(3) */
+static␜char␜*ofs␜=␜"---";␜/* output field separator         */
+static␜char␜*quotes␜=␜"\"\"''[]()";␜/* default quotes                 */
+static␜int␜kq␜=␜0;␜/* keep quotes in output          */
+static␜int␜ki␜=␜0;␜/* keep line indentation          */

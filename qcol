@@ -1,0 +1,57 @@
+#!/bin/sh
+
+set -e
+
+qs=qsplit
+
+if ! which qsplit >/dev/null 2>/dev/null; then
+	if [ ! -x `dirname $0`/qsplit ]; then
+		echo 'qsplit(1) not found in $PATH' 1>&2
+		exit 1
+	fi
+	qs=./qsplit
+fi
+
+help() {
+	p=`basename $0`
+	s=`echo $p | sed 's/./ /g'`
+	echo "$p [-h]" 1>&2
+	echo "$p [-x ofs] [qcol-options ...]" 1>&2
+	exit $1
+}
+
+ofs=" "
+if [ "$1" = "-x" ]; then
+	if [ -z "$2" ]; then
+		help 1
+	fi
+	ofs="$2"
+	shift; shift
+fi
+if [ "$1" = "-h" ]; then help 0; fi
+
+# Interestingly, p9p's awk(1) isn't rune aware.
+n=`echo -n 聽 | awk '{ print length($1) }'`
+if [ "$n" != "1" ]; then
+	echo 'awk(1) cannot count unicode runes' >&2
+	exit 1
+fi
+
+fn=`mktemp /tmp/qcol.XXXXXX`
+$qs "$@" > $fn
+
+# NOTE: we assume at least qsplit's default OFS will be used.
+awk -F "␜" -v "ofs=$ofs" 'FNR == 1 { n++ }
+n == 1 {
+	for (i = 1; i < NF; i++)
+		if (length($i) > count[i])
+			count[i] = length($i)
+}
+n == 2 {
+	for (i = 1; i < NF; i++)
+		printf("%-*s%s", count[i], $i, ofs)
+	printf("%s\n", $NF)
+}
+' $fn $fn
+
+rm -f $fn
