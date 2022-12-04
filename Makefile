@@ -16,7 +16,7 @@ qsplit: qsplit.c
 .PHONY: tests
 tests: qsplit tests.sh
 	@echo Running tests...
-	@sh tests.sh | ./qcol -i ' '
+	@sh tests.sh qsplit | ./qcol -i ' '
 
 .PHONY: install
 install: qsplit qsplit.1 qcol

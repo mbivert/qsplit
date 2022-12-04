@@ -6,19 +6,21 @@
 PATH=$PWD/:$PATH
 export PATH
 
-if [ ! -x ./qsplit ]; then
-	echo './qsplit not found' 1>&2
+if [ ! -x "$1" ]; then
+	echo `basename $0` "<program> [tests/]" 1>&2
 	exit 1
 fi
+
+d=tests; if [ -n "$2" ]; then d="$2"; fi
 
 if ! which diff >/dev/null; then
 	echo 'diff(1) not found in $PATH' 1>&2
 	exit 1
 fi
 
-for x in tests/*; do
+for x in $d/*; do
 	set +e
-	eval "./qsplit $(cat $x/args) $x/input" > /tmp/test.$$ 2>/tmp/test.err.$$;
+	eval "$1 $(cat $x/args)" < $x/input > /tmp/test.$$ 2>/tmp/test.err.$$;
 	y=$?
 	set -e
 	if [ "$y" == "0" ] && [ -e $x/output ]; then
