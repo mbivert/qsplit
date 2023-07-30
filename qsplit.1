@@ -14,7 +14,8 @@
 .Op Fl kns
 .Op Fl i Ar ifs
 .Op Fl o Ar ofs
-.Op fl q Ar quotes
+.Op Fl m Ar max
+.Op Fl q Ar quotes
 .Op Ar
 .Ek
 .Sh DESCRIPTION
@@ -57,6 +58,12 @@ Set the output field separator (string), currently defaulting to
 .Xr unicode 7
 character),
 which should be unusual enough to fit this purpose.
+.It Fl m Ar max
+Process at most
+.Ar max
+fields from each input line, where
+.Ar max
+is a positive integer (common case; see the EXAMPLES section below).
 .It Fl q Ar quotes
 Register a set of pair of single byte opening/closing quotes,
 such as each opening quote is immediately followed by the
